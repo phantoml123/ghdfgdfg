@@ -119,17 +119,28 @@ function get_absolute_url(fname)
     return window.location.origin + path.slice(0, p + 1) + fname;
 }
 
-function GraphicDisplay(parent_el)
+function GraphicDisplay(parent_el, width, height)
 {
+    this.width = width;
+    this.height = height;
+    
     this.canvas_el = document.createElement("canvas");
-    parent_el.appendChild(this.canvas_el);
-    this.ctx = this.canvas_el.getContext("2d");
-
-    this.resizeCanvas(); // Initial size
-    window.addEventListener("resize", () => this.resizeCanvas()); // Resize on window change
-
+    this.canvas_el.width = width; /* logical width */
+    this.canvas_el.height = height; /* logical width */
+    /* displayed size */
+    this.canvas_el.style.width = width + "px";
+    this.canvas_el.style.height = height + "px";
     this.canvas_el.style.cursor = "none";
     
+    parent_el.appendChild(this.canvas_el);
+
+    this.ctx = this.canvas_el.getContext("2d");
+    /* clear the display */
+    this.ctx.fillStyle = "#000000";
+    this.ctx.fillRect(0, 0, width, height);
+    
+    this.image = this.ctx.createImageData(width, height);
+
     this.key_pressed = new Uint8Array(128);
 
     document.addEventListener("keydown",
@@ -145,20 +156,6 @@ function GraphicDisplay(parent_el)
     this.canvas_el.oncontextmenu = this.onContextMenuHandler.bind(this);
     this.canvas_el.onwheel = this.wheelHandler.bind(this);
 }
-
-GraphicDisplay.prototype.resizeCanvas = function() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.canvas_el.width = this.width;
-    this.canvas_el.height = this.height;
-    this.canvas_el.style.width = this.width + "px";
-    this.canvas_el.style.height = this.height + "px";
-
-    this.ctx.fillStyle = "#000000";
-    this.ctx.fillRect(0, 0, this.width, this.height);
-
-    this.image = this.ctx.createImageData(this.width, this.height);
-};
 
 GraphicDisplay.code_to_input_map = {
         "Escape": 0x01,
